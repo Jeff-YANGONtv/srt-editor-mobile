@@ -8,26 +8,367 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .sub-card { border-left: 4px solid transparent; transition: 0.3s; }
-        .active-sub { border-left-color: #22d3ee; background: rgba(34, 211, 238, 0.05); }
-        #dataModal { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        
-        /* Native File Input Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 50%, #0f172a 100%);
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Base */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Enhanced Glass for Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 3D Button Styles */
+        .btn-3d {
+            position: relative;
+            padding: 12px 24px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            transform: translateY(0);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(255, 255, 255, 0.1) inset;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .btn-3d:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(255, 255, 255, 0.15) inset;
+        }
+
+        /* Primary 3D Button (Cyan) */
+        .btn-primary-3d {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: white;
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4), 0 0 0 0 rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .btn-primary-3d:hover {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            box-shadow: 0 12px 28px rgba(6, 182, 212, 0.6), 0 0 0 0 rgba(255, 255, 255, 0.2) inset;
+        }
+
+        /* Secondary 3D Button (Gray) */
+        .btn-secondary-3d {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .btn-secondary-3d:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(255, 255, 255, 0.15) inset;
+        }
+
+        /* Danger 3D Button (Red) */
+        .btn-danger-3d {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.8) 0%, rgba(220, 38, 38, 0.8) 100%);
+            color: white;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3), 0 0 0 0 rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .btn-danger-3d:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%);
+            box-shadow: 0 12px 28px rgba(239, 68, 68, 0.5), 0 0 0 0 rgba(255, 255, 255, 0.15) inset;
+        }
+
+        /* Subtitle Card Styling */
+        .sub-card {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sub-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateX(4px);
+        }
+
+        .active-sub {
+            border-left-color: #06b6d4;
+            background: rgba(6, 182, 212, 0.1);
+            border-color: rgba(6, 182, 212, 0.3);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+        }
+
+        /* Modal Styling */
+        #dataModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0, 0, 0, 0.6);
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.05);
+        }
+
+        /* Input Styling */
+        input[type="text"],
+        input[type="file"],
+        select,
+        textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="file"]:focus,
+        select:focus,
+        textarea:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+            outline: none;
+        }
+
         input[type="file"]::file-selector-button {
-            background: #0ea5e9; border: none; padding: 8px 12px; border-radius: 6px; color: white; cursor: pointer; margin-right: 8px; font-size: 11px; font-weight: bold;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            margin-right: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Header Styling */
+        header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Floating Action Button */
+        .fab-3d {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 12px 32px rgba(6, 182, 212, 0.4), 0 0 0 0 rgba(255, 255, 255, 0.1) inset;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 50;
+        }
+
+        .fab-3d:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 16px 40px rgba(6, 182, 212, 0.6), 0 0 0 0 rgba(255, 255, 255, 0.15) inset;
+        }
+
+        .fab-3d:active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4), 0 0 0 0 rgba(255, 255, 255, 0.1) inset;
+        }
+
+        /* Placeholder Text */
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 182, 212, 0.7);
+        }
+
+        /* LED Font Effect */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        .led-time {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        /* LED Start Time (Green) */
+        .led-start {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.15) 100%);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5), inset 0 0 10px rgba(34, 197, 94, 0.1);
+            text-shadow: 0 0 8px rgba(34, 197, 94, 0.8), 0 0 16px rgba(34, 197, 94, 0.4);
+        }
+
+        .led-start:hover {
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.7), inset 0 0 15px rgba(34, 197, 94, 0.2);
+            text-shadow: 0 0 12px rgba(34, 197, 94, 1), 0 0 20px rgba(34, 197, 94, 0.6);
+        }
+
+        /* LED End Time (Red) */
+        .led-end {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.15) 100%);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.1);
+            text-shadow: 0 0 8px rgba(239, 68, 68, 0.8), 0 0 16px rgba(239, 68, 68, 0.4);
+        }
+
+        .led-end:hover {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.7), inset 0 0 15px rgba(239, 68, 68, 0.2);
+            text-shadow: 0 0 12px rgba(239, 68, 68, 1), 0 0 20px rgba(239, 68, 68, 0.6);
+        }
+
+        /* LED Pulse Animation */
+        @keyframes ledPulse {
+            0%, 100% {
+                text-shadow: 0 0 8px rgba(34, 197, 94, 0.8), 0 0 16px rgba(34, 197, 94, 0.4);
+            }
+            50% {
+                text-shadow: 0 0 12px rgba(34, 197, 94, 1), 0 0 24px rgba(34, 197, 94, 0.6);
+            }
+        }
+
+        @keyframes ledPulseRed {
+            0%, 100% {
+                text-shadow: 0 0 8px rgba(239, 68, 68, 0.8), 0 0 16px rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                text-shadow: 0 0 12px rgba(239, 68, 68, 1), 0 0 24px rgba(239, 68, 68, 0.6);
+            }
+        }
+
+        .led-start.pulse {
+            animation: ledPulse 2s ease-in-out infinite;
+        }
+
+        .led-end.pulse {
+            animation: ledPulseRed 2s ease-in-out infinite;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sub-card {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 640px) {
+            .fab-3d {
+                bottom: 24px;
+                right: 24px;
+                width: 48px;
+                height: 48px;
+            }
+
+            .btn-3d {
+                padding: 10px 20px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <header class="p-4 glass flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center gap-3">
-            <div id="userPhoto" class="w-9 h-9 rounded-full bg-cyan-600 border border-cyan-400/30 flex items-center justify-center font-bold text-xs">Y</div>
-            <div>
-                <h1 class="text-xs font-bold leading-none" id="tgUserName">Editor Name</h1>
-                <p class="text-[9px] text-cyan-400 mt-1 uppercase tracking-widest">YGN TV Production</p>
+    <header class="glass p-3 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <img src="logo.png" alt="YANGON TV" class="h-12 w-auto object-contain drop-shadow-lg">
+            <div id="userPhoto" class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 border border-cyan-400/50 flex items-center justify-center font-bold text-sm shadow-lg shadow-cyan-500/30 flex-shrink-0">Y</div>
+            <div class="hidden sm:block">
+                <h1 class="text-sm font-bold leading-none" id="tgUserName">Editor Name</h1>
+                <p class="text-xs text-cyan-400 mt-1 uppercase tracking-widest font-semibold">YGN TV Production</p>
             </div>
         </div>
     </header>
@@ -35,49 +376,68 @@
     <main class="p-4 space-y-4 flex-1">
         
         <div class="grid grid-cols-2 gap-3 shrink-0">
-            <div class="p-3 glass rounded-xl border border-dashed border-white/10 flex flex-col gap-1">
-                <label class="text-[10px] text-gray-400 font-bold uppercase ml-1"><i class="fa-solid fa-video mr-1"></i> Video</label>
-                <input type="file" id="videoInput" accept="video/*" onchange="handleVideo(this)" class="w-full text-[10px] text-gray-500">
+            <div class="glass-card p-4 flex flex-col gap-2 border-dashed">
+                <label class="text-xs text-gray-300 font-bold uppercase ml-1 flex items-center gap-2">
+                    <i class="fa-solid fa-video text-cyan-400"></i> Video
+                </label>
+                <input type="file" id="videoInput" accept="video/*" onchange="handleVideo(this)" class="w-full text-xs text-gray-400">
             </div>
-            <div class="p-3 glass rounded-xl border border-dashed border-white/10 flex flex-col gap-1">
-                <label class="text-[10px] text-yellow-500 font-bold uppercase ml-1"><i class="fa-solid fa-file-invoice mr-1"></i> SRT</label>
-                <input type="file" id="srtInput" accept=".srt" onchange="handleSRT(this)" class="w-full text-[10px] text-gray-500">
+            <div class="glass-card p-4 flex flex-col gap-2 border-dashed">
+                <label class="text-xs text-yellow-400 font-bold uppercase ml-1 flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice"></i> SRT
+                </label>
+                <input type="file" id="srtInput" accept=".srt" onchange="handleSRT(this)" class="w-full text-xs text-gray-400">
             </div>
         </div>
 
-        <div class="rounded-2xl overflow-hidden bg-black shadow-2xl ring-1 ring-white/10 sticky top-20 z-30">
+        <div class="rounded-2xl overflow-hidden glass-card shadow-2xl sticky top-20 z-30">
             <video id="mainVideo" class="w-full aspect-video" controls playsinline></video>
         </div>
 
         <div id="subtitleList" class="space-y-3 pb-32">
-            <div class="text-center py-20 text-gray-600 text-[10px] italic">ဗီဒီယိုနှင့် SRT တင်ပေးပါ</div>
+            <div class="text-center py-20 text-gray-500 text-xs italic">ဗီဒီယိုနှင့် SRT တင်ပေးပါ</div>
         </div>
     </main>
 
-    <button onclick="openModal()" class="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-2xl shadow-xl flex items-center justify-center z-50 active:scale-90 transition-all border border-white/20">
-        <i class="fa-solid fa-save text-white text-xl"></i>
+    <button onclick="openModal()" class="fab-3d">
+        <i class="fa-solid fa-save text-white text-2xl"></i>
     </button>
 
     <div id="dataModal">
-        <div class="w-[90%] max-w-[320px] p-6 glass rounded-[1.5rem] border border-white/10 space-y-4">
-            <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-pen-nib text-cyan-400"></i> Project Info
+        <div class="w-[90%] max-w-[360px] p-8 modal-content space-y-5">
+            <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                <i class="fa-solid fa-pen-nib text-cyan-400 text-lg"></i> Project Info
             </h2>
-            <div class="space-y-3">
-                <input type="text" id="popEditor" class="w-full bg-black/40 p-3 rounded-lg outline-none border border-white/5 text-sm" placeholder="Editor Name">
-                <select id="popType" class="w-full bg-black/40 p-3 rounded-lg outline-none border border-white/5 text-sm" onchange="toggleSeries()">
-                    <option value="Movie">Movie</option>
-                    <option value="Series">Series</option>
-                </select>
-                <input type="text" id="popTitle" class="w-full bg-black/40 p-3 rounded-lg outline-none border border-white/5 text-sm" placeholder="Title">
-                <div id="seriesOnly" class="hidden grid grid-cols-2 gap-2">
-                    <input type="text" id="popSeason" class="bg-black/40 p-3 rounded-lg text-center outline-none border border-white/5 text-sm" placeholder="S01">
-                    <input type="text" id="popEpisode" class="bg-black/40 p-3 rounded-lg text-center outline-none border border-white/5 text-sm" placeholder="E01">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-gray-400 font-semibold mb-2 block">Editor Name</label>
+                    <input type="text" id="popEditor" class="w-full p-3 text-sm" placeholder="Enter your name">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 font-semibold mb-2 block">Type</label>
+                    <select id="popType" class="w-full p-3 text-sm" onchange="toggleSeries()">
+                        <option value="Movie">Movie</option>
+                        <option value="Series">Series</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 font-semibold mb-2 block">Title</label>
+                    <input type="text" id="popTitle" class="w-full p-3 text-sm" placeholder="Enter title">
+                </div>
+                <div id="seriesOnly" class="hidden grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-gray-400 font-semibold mb-2 block">Season</label>
+                        <input type="text" id="popSeason" class="w-full p-3 text-center text-sm" placeholder="S01">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-400 font-semibold mb-2 block">Episode</label>
+                        <input type="text" id="popEpisode" class="w-full p-3 text-center text-sm" placeholder="E01">
+                    </div>
                 </div>
             </div>
-            <div class="flex gap-2 pt-1">
-                <button onclick="closeModal()" class="flex-1 py-3 rounded-lg bg-gray-800 text-sm">Cancel</button>
-                <button onclick="uploadToDrive()" class="flex-1 py-3 rounded-lg bg-cyan-500 font-bold text-sm shadow-lg shadow-cyan-500/20">SAVE</button>
+            <div class="flex gap-3 pt-4">
+                <button onclick="closeModal()" class="flex-1 btn-3d btn-secondary-3d">Cancel</button>
+                <button onclick="uploadToDrive()" class="flex-1 btn-3d btn-primary-3d">SAVE</button>
             </div>
         </div>
     </div>
@@ -91,7 +451,7 @@
         if(user) {
             document.getElementById('tgUserName').innerText = user.first_name;
             document.getElementById('popEditor').value = user.first_name + (user.last_name ? " " + user.last_name : "");
-            if(user.photo_url) document.getElementById('userPhoto').innerHTML = `<img src="${user.photo_url}" class="w-full h-full object-cover">`;
+            if(user.photo_url) document.getElementById('userPhoto').innerHTML = `<img src="${user.photo_url}" class="w-full h-full object-cover rounded-full">`;
         }
 
         let subs = [];
@@ -117,10 +477,16 @@
         function renderSubs() {
             const list = document.getElementById('subtitleList');
             list.innerHTML = subs.map((s, i) => `
-                <div class="p-4 glass rounded-xl sub-card shadow-sm" onclick="seekVideo('${s.start}', this)">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[9px] font-mono text-cyan-400 bg-cyan-400/10 px-2 py-1 rounded">${s.start} ➔ ${s.end}</span>
-                        <button onclick="event.stopPropagation(); deleteLine(${i})" class="text-red-500/30"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                <div class="sub-card" onclick="seekVideo('${s.start}', this)">
+                    <div class="flex justify-between items-center mb-3 gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="led-time led-start pulse">${s.start}</span>
+                            <span class="text-gray-400 text-xs">➔</span>
+                            <span class="led-time led-end pulse">${s.end}</span>
+                        </div>
+                        <button onclick="event.stopPropagation(); deleteLine(${i})" class="text-red-400/60 hover:text-red-400 transition-colors flex-shrink-0">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
                     </div>
                     <textarea class="w-full bg-transparent outline-none text-sm leading-relaxed text-gray-200 resize-none" rows="2" oninput="subs[${i}].text=this.value">${s.text}</textarea>
                 </div>
