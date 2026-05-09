@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>YGN TV PRODUCTION LAB</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .sub-card { border-left: 4px solid transparent; transition: 0.3s; }
+        .active-sub { border-left-color: #22d3ee; background: rgba(34, 211, 238, 0.05); }
+        #dataModal { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        
+        /* Native File Input Styling */
+        input[type="file"]::file-selector-button {
+            background: #0ea5e9; border: none; padding: 8px 12px; border-radius: 6px; color: white; cursor: pointer; margin-right: 8px; font-size: 11px; font-weight: bold;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <header class="p-4 glass flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div id="userPhoto" class="w-9 h-9 rounded-full bg-cyan-600 border border-cyan-400/30 flex items-center justify-center font-bold text-xs">Y</div>
+            <div>
+                <h1 class="text-xs font-bold leading-none" id="tgUserName">Editor Name</h1>
+                <p class="text-[9px] text-cyan-400 mt-1 uppercase tracking-widest">YGN TV Production</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-4 space-y-4 flex-1">
+        
+        <div class="grid grid-cols-2 gap-3 shrink-0">
+            <div class="p-3 glass rounded-xl border border-dashed border-white/10 flex flex-col gap-1">
+                <label class="text-[10px] text-gray-400 font-bold uppercase ml-1"><i class="fa-solid fa-video mr-1"></i> Video</label>
+                <input type="file" id="videoInput" accept="video/*" onchange="handleVideo(this)" class="w-full text-[10px] text-gray-500">
+            </div>
+            <div class="p-3 glass rounded-xl border border-dashed border-white/10 flex flex-col gap-1">
+                <label class="text-[10px] text-yellow-500 font-bold uppercase ml-1"><i class="fa-solid fa-file-invoice mr-1"></i> SRT</label>
+                <input type="file" id="srtInput" accept=".srt" onchange="handleSRT(this)" class="w-full text-[10px] text-gray-500">
+            </div>
+        </div>
+
+        <div class="rounded-2xl overflow-hidden bg-black shadow-2xl ring-1 ring-white/10 sticky top-20 z-30">
+            <video id="mainVideo" class="w-full aspect-video" controls playsinline></video>
+        </div>
+
+        <div id="subtitleList" class="space-y-3 pb-32">
+            <div class="text-center py-20 text-gray-600 text-[10px] italic">ဗီဒီယိုနှင့် SRT တင်ပေးပါ</div>
+        </div>
+    </main>
+
+    <button onclick="openModal()" class="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-2xl shadow-xl flex items-center justify-center z-50 active:scale-90 transition-all border border-white/20">
+        <i class="fa-solid fa-save text-white text-xl"></i>
+    </button>
+
+    <div id="dataModal">
+        <div class="w-[90%] max-w-[320px] p-6 glass rounded-[1.5rem] border border-white/10 space-y-4">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-pen-nib text-cyan-400"></i> Project Info
+            </h2>
+            <div class="space-y-3">
+                <input type="text" id="popEditor" class="w-full bg-black/40 p-3 rounded-lg outline-none border border-white/5 text-sm" placeholder="Editor Name">
+                <select id="popType" class="w-full bg-black/40 p-3 rounded-lg outline-none border border-white/5 text-sm" onchange="toggleSeries()">
+                    <option value="Movie">Movie</option>
+                    <option value="Series">Series</option>
+                </select>
+                <input type="text" id="popTitle" class="w-full bg-black/40 p-3 rounded-lg outline-none border border-white/5 text-sm" placeholder="Title">
+                <div id="seriesOnly" class="hidden grid grid-cols-2 gap-2">
+                    <input type="text" id="popSeason" class="bg-black/40 p-3 rounded-lg text-center outline-none border border-white/5 text-sm" placeholder="S01">
+                    <input type="text" id="popEpisode" class="bg-black/40 p-3 rounded-lg text-center outline-none border border-white/5 text-sm" placeholder="E01">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-1">
+                <button onclick="closeModal()" class="flex-1 py-3 rounded-lg bg-gray-800 text-sm">Cancel</button>
+                <button onclick="uploadToDrive()" class="flex-1 py-3 rounded-lg bg-cyan-500 font-bold text-sm shadow-lg shadow-cyan-500/20">SAVE</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyiU7Z_rbs_LN5iz8rEGs8FI8AJi5ckGXsmykFW2c9nczFqZ8HQVtUBhNwq68LOIe44_w/exec";
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const user = tg.initDataUnsafe?.user;
+        if(user) {
+            document.getElementById('tgUserName').innerText = user.first_name;
+            document.getElementById('popEditor').value = user.first_name + (user.last_name ? " " + user.last_name : "");
+            if(user.photo_url) document.getElementById('userPhoto').innerHTML = `<img src="${user.photo_url}" class="w-full h-full object-cover">`;
+        }
+
+        let subs = [];
+        const video = document.getElementById('mainVideo');
+
+        function handleVideo(el) { if (el.files[0]) video.src = URL.createObjectURL(el.files[0]); }
+        function handleSRT(el) {
+            const reader = new FileReader();
+            reader.onload = (e) => { subs = parseSRT(e.target.result); renderSubs(); };
+            reader.readAsText(el.files[0]);
+        }
+
+        function parseSRT(data) {
+            return data.replace(/\r/g, '').trim().split(/\n\n+/).map(block => {
+                const lines = block.split('\n');
+                const time = lines.find(l => l.includes(' --> '));
+                if(!time) return null;
+                const [s, e] = time.split(' --> ');
+                return { start: s.trim(), end: e.trim(), text: lines.slice(lines.indexOf(time)+1).join('\n') };
+            }).filter(x => x);
+        }
+
+        function renderSubs() {
+            const list = document.getElementById('subtitleList');
+            list.innerHTML = subs.map((s, i) => `
+                <div class="p-4 glass rounded-xl sub-card shadow-sm" onclick="seekVideo('${s.start}', this)">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[9px] font-mono text-cyan-400 bg-cyan-400/10 px-2 py-1 rounded">${s.start} ➔ ${s.end}</span>
+                        <button onclick="event.stopPropagation(); deleteLine(${i})" class="text-red-500/30"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    </div>
+                    <textarea class="w-full bg-transparent outline-none text-sm leading-relaxed text-gray-200 resize-none" rows="2" oninput="subs[${i}].text=this.value">${s.text}</textarea>
+                </div>
+            `).join('');
+        }
+
+        function seekVideo(time, el) {
+            const p = time.split(':'); const s = p[2].split(',');
+            video.currentTime = (parseInt(p[0])*3600) + (parseInt(p[1])*60) + parseInt(s[0]) + (parseInt(s[1])/1000);
+            video.play();
+            document.querySelectorAll('.sub-card').forEach(c => c.classList.remove('active-sub'));
+            el.classList.add('active-sub');
+        }
+
+        function deleteLine(i) { subs.splice(i, 1); renderSubs(); }
+        function openModal() { if(subs.length > 0) document.getElementById('dataModal').style.display = 'flex'; else alert("SRT အရင်တင်ပါ"); }
+        function closeModal() { document.getElementById('dataModal').style.display = 'none'; }
+        function toggleSeries() { document.getElementById('seriesOnly').classList.toggle('hidden', document.getElementById('popType').value !== 'Series'); }
+
+        async function uploadToDrive() {
+            const editor = document.getElementById('popEditor').value;
+            const title = document.getElementById('popTitle').value;
+            if(!editor || !title) return alert("အချက်အလက်ဖြည့်ပါ");
+
+            const content = subs.map((s, i) => `${i+1}\n${s.start} --> ${s.end}\n${s.text}\n`).join('\n');
+            closeModal();
+            if(tg.MainButton) tg.MainButton.setText("SAVING...").show();
+
+            try {
+                await fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({
+                        action: "saveAndLog", date: new Date().toLocaleDateString('en-GB'),
+                        editor, title, type: document.getElementById('popType').value,
+                        season: document.getElementById('popSeason').value || "-",
+                        episode: document.getElementById('popEpisode').value || "-",
+                        content: content
+                    })
+                });
+                if(tg.MainButton) tg.MainButton.hide();
+                alert("Cloud ပေါ်သို့ သိမ်းဆည်းပြီးပါပြီ။");
+                tg.close();
+            } catch (e) { alert("Error: " + e); if(tg.MainButton) tg.MainButton.hide(); }
+        }
+    </script>
+</body>
+</html>
