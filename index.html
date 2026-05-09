@@ -328,76 +328,14 @@
             animation: ledPulseRed 2s ease-in-out infinite;
         }
 
-        /* Animated Header Title */
-        .header-title {
-            font-size: 24px;
-            font-weight: 900;
-            letter-spacing: 3px;
+        /* Header Branding */
+        .header-branding {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            background: linear-gradient(90deg, #06b6d4, #0891b2, #06b6d4);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientShift 3s ease infinite;
-            text-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
-        }
-
-        @keyframes gradientShift {
-            0% {
-                background-position: 0% center;
-            }
-            50% {
-                background-position: 100% center;
-            }
-            100% {
-                background-position: 0% center;
-            }
-        }
-
-        /* Letter by letter animation */
-        .header-title span {
-            display: inline-block;
-            animation: letterBounce 0.6s ease-in-out infinite;
-        }
-
-        .header-title span:nth-child(1) { animation-delay: 0s; }
-        .header-title span:nth-child(2) { animation-delay: 0.1s; }
-        .header-title span:nth-child(3) { animation-delay: 0.2s; }
-        .header-title span:nth-child(4) { animation-delay: 0.3s; }
-        .header-title span:nth-child(5) { animation-delay: 0.4s; }
-        .header-title span:nth-child(6) { animation-delay: 0.5s; }
-        .header-title span:nth-child(7) { animation-delay: 0.6s; }
-        .header-title span:nth-child(8) { animation-delay: 0.7s; }
-        .header-title span:nth-child(9) { animation-delay: 0.8s; }
-        .header-title span:nth-child(10) { animation-delay: 0.9s; }
-        .header-title span:nth-child(11) { animation-delay: 1s; }
-        .header-title span:nth-child(12) { animation-delay: 1.1s; }
-        .header-title span:nth-child(13) { animation-delay: 1.2s; }
-        .header-title span:nth-child(14) { animation-delay: 1.3s; }
-        .header-title span:nth-child(15) { animation-delay: 1.4s; }
-        .header-title span:nth-child(16) { animation-delay: 1.5s; }
-        .header-title span:nth-child(17) { animation-delay: 1.6s; }
-        .header-title span:nth-child(18) { animation-delay: 1.7s; }
-        .header-title span:nth-child(19) { animation-delay: 1.8s; }
-        .header-title span:nth-child(20) { animation-delay: 1.9s; }
-        .header-title span:nth-child(21) { animation-delay: 2s; }
-        .header-title span:nth-child(22) { animation-delay: 2.1s; }
-
-        @keyframes letterBounce {
-            0%, 100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            50% {
-                transform: translateY(-8px);
-                opacity: 0.8;
-            }
-        }
-
-        /* Glow effect */
-        .header-title {
-            filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.6));
+            color: #06b6d4;
+            opacity: 0.8;
         }
 
         /* Animations */
@@ -434,12 +372,15 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <header class="glass p-4 flex justify-center items-center sticky top-0 z-50">
-        <div class="header-title">
-            <span>Y</span><span>G</span><span>N</span><span> </span>
-            <span>T</span><span>V</span><span> </span>
-            <span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span> </span>
-            <span>L</span><span>A</span><span>B</span>
+    <header class="glass p-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div id="userPhoto" class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 border border-cyan-400/50 flex items-center justify-center font-bold text-sm shadow-lg shadow-cyan-500/30 flex-shrink-0">
+                <i class="fa-solid fa-user text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-sm font-bold leading-none" id="tgUserName">User Name</h1>
+                <p class="header-branding mt-1">YGN TV PRODUCTION LAB</p>
+            </div>
         </div>
     </header>
 
